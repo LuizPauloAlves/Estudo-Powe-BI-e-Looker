@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Margem de Lucro ao Longo do Tempo</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #ffffff;
+      color: #222;
+      margin: 0;
+      padding: 2rem;
+      box-sizing: border-box;
+    }
+    h2 {
+      font-size: 18px;
+      font-weight: 500;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .chart-wrapper {
+      position: relative;
+      width: 100%;
+      height: 420px;
+    }
+    #legenda {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-top: 12px;
+      font-size: 13px;
+      color: #555;
+      justify-content: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Margem de Lucro ao Longo do Tempo</h2>
+    <div class="chart-wrapper">
+      <canvas id="margemChart"></canvas>
+    </div>
+    <div id="legenda"></div>
+  </div>
+
+  <script>
+    const labels = ["2011-01","2011-02","2011-03","2011-04","2011-05","2011-06","2011-07","2011-08","2011-09","2011-10","2011-11","2011-12","2012-01","2012-02","2012-03","2012-04","2012-05","2012-06","2012-07","2012-08","2012-09","2012-10","2012-11","2012-12","2013-01","2013-02","2013-03","2013-04","2013-05","2013-06","2013-07","2013-08","2013-09","2013-10","2013-11","2013-12","2014-01","2014-02","2014-03","2014-04","2014-05","2014-06","2014-07","2014-08","2014-09","2014-10","2014-11","2014-12"];
+    const valores = [389.46,320.41,474.60,508.94,497.92,814.15,432.11,776.76,942.22,691.44,1023.62,1126.99,478.60,386.93,605.60,584.59,741.63,1014.03,589.35,960.11,1075.35,883.95,1314.40,1144.71,636.09,538.26,683.32,693.30,942.65,1354.81,822.96,1276.71,1517.18,983.09,1421.03,1417.31,821.84,679.58,948.33,945.92,1138.03,1551.16,951.68,1495.21,1772.36,1460.32,1911.17,1947.64];
+
+    const n = valores.length;
+    const xNum = valores.map((_, i) => i);
+    const sumX = xNum.reduce((a, b) => a + b, 0);
+    const sumY = valores.reduce((a, b) => a + b, 0);
+    const sumXY = xNum.reduce((s, x, i) => s + x * valores[i], 0);
+    const sumX2 = xNum.reduce((s, x) => s + x * x, 0);
+    const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+    const intercept = (sumY - slope * sumX) / n;
+    const regressao = xNum.map(x => parseFloat((slope * x + intercept).toFixed(2)));
+
+    const mean = sumY / n;
+    const std = Math.sqrt(valores.reduce((s, v) => s + (v - mean) ** 2, 0) / n);
+    const bandaSup = regressao.map(v => parseFloat((v + 2 * std).toFixed(2)));
+    const bandaInf = regressao.map(v => parseFloat((v - 2 * std).toFixed(2)));
+
+    const tendencia = slope > 0 ? 'Crescendo ↑' : slope < 0 ? 'Decrescendo ↓' : 'Estável →';
+
+    new Chart(document.getElementById('margemChart'), {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: '+2 Desvios Padrão',
+            data: bandaSup,
+            borderColor: 'transparent',
+            backgroundColor: 'rgba(55, 138, 221, 0.15)',
+            fill: '+1',
+            pointRadius: 0,
+            tension: 0.3
+          },
+          {
+            label: '-2 Desvios Padrão',
+            data: bandaInf,
+            borderColor: 'transparent',
+            backgroundColor: 'rgba(55, 138, 221, 0.15)',
+            fill: false,
+            pointRadius: 0,
+            tension: 0.3
+          },
+          {
+            label: 'Margem de Lucro',
+            data: valores,
+            borderColor: '#378ADD',
+            backgroundColor: '#378ADD',
+            borderWidth: 2,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+            tension: 0.1,
+            fill: false
+          },
+          {
+            label: `Tendência: ${tendencia}`,
+            data: regressao,
+            borderColor: '#E24B4A',
+            borderWidth: 2,
+            borderDash: [6, 4],
+            pointRadius: 0,
+            fill: false,
+            tension: 0
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: ctx => {
+                if (ctx.dataset.label.includes('Desvios')) return null;
+                return ` ${ctx.dataset.label}: ${ctx.parsed.y.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            ticks: {
+              autoSkip: false,
+              maxRotation: 45,
+              callback: (val, i) => i % 3 === 0 ? labels[i] : ''
+            },
+            grid: { color: 'rgba(128,128,128,0.1)' }
+          },
+          y: {
+            ticks: {
+              callback: v => v.toLocaleString('pt-BR')
+            },
+            grid: { color: 'rgba(128,128,128,0.1)' }
+          }
+        }
+      }
+    });
+
+    const legenda = document.getElementById('legenda');
+    const items = [
+      { cor: 'rgba(55,138,221,0.25)', label: '±2 Desvios Padrão' },
+      { cor: '#378ADD', label: 'Margem de Lucro' },
+      { cor: '#E24B4A', label: `Tendência: ${tendencia}`, dash: true }
+    ];
+    items.forEach(({ cor, label, dash }) => {
+      legenda.innerHTML += `<span style="display:flex;align-items:center;gap:6px;">
+        <span style="width:24px;height:3px;background:${cor};${dash ? 'border-top:2px dashed #E24B4A;background:transparent;' : ''}display:inline-block;border-radius:2px;"></span>
+        ${label}
+      </span>`;
+    });
+  </script>
+</body>
+</html>
