@@ -17,9 +17,9 @@ Laboratório Prático 2 - Dashboard de Vendas, Custo, Margem de Lucro e KPI
 
  - A empresa ficou abaixo ou acima da meta no mês de Abril/2014?
 
-4-Considere que o lucro é equivalente a:valor venda - custo envio.
+4-Qual categoria de produto apresentou maior lucro médio?
 
- - Qual categoria de produto apresentou maior lucro médio.
+ - Considere que o lucro é equivalente a:valor venda - custo envio.
 
 5-Qual foi o comportamento da margem de lucro ao longo do tempo?
 
