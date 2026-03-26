@@ -35,3 +35,10 @@ Dashboard Looker > https://lookerstudio.google.com/reporting/b0a8f6a3-6078-410f-
 
 * Qual foi o comportamento da margem de lucro ao longo do tempo?
   * Considere a margem de lucro como o lucro dividido pelo valor venda.
+
+
+## Cap\_04
+
+Dashboard Looker > https://lookerstudio.google.com/reporting/c72ff67a-8c9d-431b-b1ff-35058c38de8d
+
+### Perguntas de Negócio

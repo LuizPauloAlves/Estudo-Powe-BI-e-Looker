@@ -2,5 +2,9 @@
     "notebook.output.textLineLimit": 1000,
     "python.analysis.diagnosticSeverityOverrides": {
         "reportUndefinedVariable": "none"
+    },
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter",
+        "editor.formatOnSave": true
     }
 }
